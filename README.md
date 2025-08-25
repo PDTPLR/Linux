@@ -159,11 +159,6 @@ startx
 3. Создайте Pull Request с описанием изменений.
 4. Вопросы и предложения? Пишите в Issues.
 
-## Благодарности
-
-- Вдохновение: [Zproger/bspwm-dotfiles](https://github.com/Zproger/bspwm-dotfiles)
-- Сообщества: r/unixporn, r/bspwm
-- Arch Wiki за документацию
 
 ## Лицензия
 
