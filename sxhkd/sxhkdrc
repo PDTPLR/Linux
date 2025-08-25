@@ -1,0 +1,145 @@
+# ---------------------------------------
+# СЕКЦИЯ 1: ОСНОВНЫЕ ГОРЯЧИЕ КЛАВИШИ
+# ---------------------------------------
+
+# Перезагрузка конфигурации sxhkd
+super + Escape + r
+    pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Конфигурация перезагружена' -t 1500
+
+# Запуск терминала Alacritty
+super + Return
+    alacritty
+
+# Скрыть или показать Polybar
+super + p
+    sh $HOME/bin/toggle-polybar
+
+# Установить случайные обои
+super + w
+    sh $HOME/bin/random_wallpaper
+
+# Смена языка ввода (два варианта комбинаций)
+Alt_L + shift
+    sh $HOME/bin/change_language.sh
+
+ctrl + space
+    sh $HOME/bin/change_language.sh
+
+# Запуск меню Rofi (два варианта: запуск приложений или меню питания)
+super + {d,x}
+    {rofi -show drun,sh $HOME/bin/powermenu}
+
+# ---------------------------------------
+# СЕКЦИЯ 2: ЗАПУСК ПРИЛОЖЕНИЙ
+# ---------------------------------------
+
+# Запуск приложений по комбинациям клавиш
+super + shift + {f,n,o,t,c,x,k,l}
+    {firefox, \
+    ~/bin/thunar-ru.sh, \
+    obsidian, \
+    Telegram &, \
+    vscodium, \
+    sh $HOME/bin/xcolor-pick, \
+    alacritty -e calcurse, \
+    sh $HOME/bin/screen-lock}
+
+# Выбор окна для закрытия (xkill)
+ctrl + super + alt + k
+    {xkill}
+
+# Управление громкостью (увеличить, уменьшить, выключить звук)
+XF86Audio{RaiseVolume,LowerVolume,Mute}
+    sh $HOME/bin/volume{ --up, --down, --toggle}
+
+# Управление яркостью экрана (увеличить, уменьшить)
+XF86MonBrightness{Up,Down}
+    sh $HOME/bin/brightness{ --up, --down}
+
+# Скриншот с помощью Flameshot
+Print
+    flameshot gui
+
+# ---------------------------------------
+# СЕКЦИЯ 3: ГОРЯЧИЕ КЛАВИШИ ДЛЯ BSPWM
+# ---------------------------------------
+
+# Выход из bspwm или перезапуск
+ctrl + shift + {q,r}
+    bspc {quit,wm -r}
+
+# Закрытие текущего окна
+super + c
+    bspc node -c
+
+# Переключение между tiling и floating mode
+super + alt + f
+    sh $HOME/bin/toggle-floating-mode.sh
+
+# НОВАЯ СТРОКА: Показать список горячих клавиш
+super + shift + 7
+    sh $HOME/bin/show-keybindings.sh
+
+# ---------------------------------------
+# СЕКЦИЯ 4: СОСТОЯНИЯ И ФЛАГИ ОКОН
+# ---------------------------------------
+
+# Переключение между полноэкранным и тайловым режимом
+super + f
+    bspc node -t ~fullscreen
+
+# Переключение фокуса на следующее/предыдущее окно (включая плавающие)
+alt + {_,shift + }Tab
+    bspc node -f {next.local,prev.local}
+
+# ---------------------------------------
+# СЕКЦИЯ 5: ФОКУС И ПЕРЕМЕЩЕНИЕ ОКОН
+# ---------------------------------------
+
+# Фокус на последнее окно или рабочий стол
+super + {grave,Tab}
+    bspc {node,desktop} -f last
+
+# Переключение фокуса на рабочий стол или отправка окна на рабочий стол (1-9, 0)
+super + {_,shift + }{1-9,0}
+    bspc {desktop -f,node -d} '^{1-9,10}'
+
+# ---------------------------------------
+# СЕКЦИЯ 6: ПРЕДВАРИТЕЛЬНЫЙ ВЫБОР (PRESELECT)
+# ---------------------------------------
+
+# Установка соотношения для предварительного выбора (1-9)
+super + ctrl + {1-9}
+    bspc node -o 0.{1-9}
+
+# Отмена предварительного выбора для текущего окна
+super + ctrl + space
+    bspc node -p cancel
+
+# Отмена предварительного выбора для всех окон на текущем рабочем столе
+super + ctrl + shift + space
+    bspc query -N -d | xargs -I id -n 1 bspc node id -p cancel
+
+# ---------------------------------------
+# СЕКЦИЯ 7: ПЕРЕМЕЩЕНИЕ И ИЗМЕНЕНИЕ РАЗМЕРА ОКОН
+# ---------------------------------------
+
+# Расширение окон (влево, вправо, вверх, вниз) с помощью клавиш
+super + control + {j,l,i,k}
+    bspc node -z {left -20 0,right 20 0,top 0 -20,bottom 0 20}
+
+# Перемещение окна к другому краю экрана (влево, вправо, вверх, вниз)
+super + {_,alt + }{j,l,i,k}
+    bspc node -{f,s} {west,south,north,east}
+
+# Установка флагов окна (отмеченное, заблокированное, прилепленное, приватное)
+super + ctrl + {m,x,y,z}
+    bspc node -g {marked,locked,sticky,private}
+
+# Мгновенное переключение между рабочими столами (влево/вправо)
+super + ctrl + {Left,Right}
+    bspc desktop -f {prev,next} --follow
+
+# Анимированное перемещение окна на другой рабочий стол (влево/вправо)
+super + shift + {Left,Right}
+    bspc node -d {prev,next} --follow
