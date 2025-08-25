@@ -1,0 +1,23 @@
+#!/bin/env bash
+
+# Показать меню выбора через Rofi в два столбца с видимостью всех строк
+choice=$(printf "⟢ Lock\n⧴ Logout\n⧻ Suspend\n⧜ Reboot\n⧨ Shutdown" | rofi -dmenu -p "Power Menu:" -columns 2 -lines 5 -theme-str 'window { width: 300px; height: 300px; } listview { columns: 2; lines: 5; margin: 0px; }')
+
+# Обработка выбора
+case "$choice" in
+  "⟢ Lock") 
+    sh "$HOME/bin/screen-lock"
+    ;;
+  "⧴ Logout") 
+    pkill -KILL -u "$USER"
+    ;;
+  "⧻ Suspend") 
+    systemctl suspend && sh "$HOME/bin/screen-lock"
+    ;;
+  "⧜ Reboot") 
+    systemctl reboot
+    ;;
+  "⧨ Shutdown") 
+    systemctl poweroff
+    ;;
+esac
