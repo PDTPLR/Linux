@@ -93,7 +93,7 @@ copy_dotfiles() {
     mv ~/.local/bin $BACKUP_DIR 2>/dev/null
     mv ~/.xinitrc $BACKUP_DIR 2>/dev/null
     mv ~/.bashrc $BACKUP_DIR 2>/dev/null
-    mv ~/Pictures/wallpapers $BACKUP_DIR 2>/dev/null
+    mv ~/Images $BACKUP_DIR 2>/dev/null
 
     # Копирование
     echo -e "${GREEN}Копирование конфигурационных файлов...${NC}"
@@ -115,8 +115,8 @@ copy_dotfiles() {
     chmod -R +x ~/.local/bin
 
     # Копирование обоев
-    mkdir -p ~/Pictures/wallpapers
-    cp -r $DOTFILES_DIR/wallpapers/* ~/Pictures/wallpapers/ || { echo -e "${RED}Ошибка копирования обоев${NC}"; exit 1; }
+    mkdir -p ~/Images
+    cp -r $DOTFILES_DIR/wallpapers/* ~/Images/ || { echo -e "${RED}Ошибка копирования обоев${NC}"; exit 1; }
 
     echo -e "${GREEN}Конфигурационные файлы, скрипты и обои успешно скопированы!${NC}"
 }
