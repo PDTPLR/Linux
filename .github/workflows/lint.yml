@@ -1,0 +1,15 @@
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Bash syntax
+        run: find bin/ scripts/ -type f -name "*.sh" -exec bash -n {} \;
+      - name: Check Markdown
+        uses: nosborn/github-action-markdown-cli@v3
+        with:
+          files: README.md Docs/*.md bin/docs/*.md
