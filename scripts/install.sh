@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Скрипт установки dotfiles для BSPWM и всех установленных пакетов
+# Скрипт установки dotfiles для BSPWM, пакетов, скриптов и обоев
 # Репозиторий: https://github.com/PDTPLR/Linux
 # Автор: PDTPLR
 
@@ -42,7 +42,7 @@ detect_distro() {
 # Установка пакетов из packages.txt
 install_packages() {
     if [ ! -f "$PACKAGES_FILE" ]; then
-        echo -e "${RED}Ошибка: Файл $PACKAGES_FILE не найден. Сгенерируйте его на исходной системе.${NC}"
+        echo -e "${RED}Ошибка: Файл $PACKAGES_FILE не найден. Сгенерируйте его с помощью 'pacman -Qe | awk \"{print \$1}\" > packages.txt'.${NC}"
         exit 1
     fi
 
@@ -63,15 +63,14 @@ install_packages() {
                 echo -e "${RED}Ошибка: apt не найден. Убедитесь, что вы используете Ubuntu/Debian.${NC}"
                 exit 1
             fi
+            echo -e "${YELLOW}Предупреждение: Некоторые пакеты из $PACKAGES_FILE могут отсутствовать или иметь другие имена в Ubuntu/Debian. Проверяйте вручную.${NC}"
             echo -e "${GREEN}Обновление списка пакетов...${NC}"
             sudo apt update
-            echo -e "${GREEN}Установка пакетов из $PACKAGES_FILE для Ubuntu/Debian...${NC}"
-            # Для Ubuntu пакеты могут иметь другие имена, поэтому устанавливаем только известные
-            # Адаптируйте список вручную или используйте приблизительный
-            sudo apt install -y $(cat "$PACKAGES_FILE" | grep -vE "arch-specific-package")  # Замените на реальный фильтр, если нужно
+            echo -e "${GREEN}Установка доступных пакетов...${NC}"
+            sudo apt install -y $(cat "$PACKAGES_FILE" | grep -vE "yay|linux-|*-nerd|base|base-devel|grub|intel-ucode|linux-firmware") || true
             ;;
         *)
-            echo -e "${RED}Дистрибутив $DISTRO не поддерживается! Установите пакеты вручную из $PACKAGES_FILE.${NC}"
+            echo -e "${RED}Дистрибутив $DISTRO не поддерживается! Установите пакеты вручную из $PACKAGES_FILE:${NC}"
             cat "$PACKAGES_FILE"
             exit 1
             ;;
@@ -90,8 +89,11 @@ copy_dotfiles() {
     mv ~/.config/picom $BACKUP_DIR 2>/dev/null
     mv ~/.config/rofi $BACKUP_DIR 2>/dev/null
     mv ~/.config/dunst $BACKUP_DIR 2>/dev/null
+    mv ~/.config/fish $BACKUP_DIR 2>/dev/null
+    mv ~/.local/bin $BACKUP_DIR 2>/dev/null
     mv ~/.xinitrc $BACKUP_DIR 2>/dev/null
     mv ~/.bashrc $BACKUP_DIR 2>/dev/null
+    mv ~/Pictures/wallpapers $BACKUP_DIR 2>/dev/null
 
     # Копирование
     echo -e "${GREEN}Копирование конфигурационных файлов...${NC}"
@@ -103,12 +105,20 @@ copy_dotfiles() {
     cp -r $DOTFILES_DIR/rofi ~/.config/ || { echo -e "${RED}Ошибка копирования rofi${NC}"; exit 1; }
     mkdir -p ~/.config/dunst
     cp $DOTFILES_DIR/dunstrc ~/.config/dunst/ || { echo -e "${RED}Ошибка копирования dunstrc${NC}"; exit 1; }
+    cp -r $DOTFILES_DIR/fish ~/.config/ || { echo -e "${RED}Ошибка копирования fish${NC}"; exit 1; }
     cp $DOTFILES_DIR/.xinitrc ~ || { echo -e "${RED}Ошибка копирования .xinitrc${NC}"; exit 1; }
     cp $DOTFILES_DIR/.bashrc ~ || { echo -e "${RED}Ошибка копирования .bashrc${NC}"; exit 1; }
 
-    # Установка прав
-    chmod +x ~/.config/bspwm/bspwmrc
-    echo -e "${GREEN}Конфигурационные файлы успешно скопированы!${NC}"
+    # Копирование пользовательских скриптов
+    mkdir -p ~/.local/bin
+    cp -r $DOTFILES_DIR/bin/* ~/.local/bin/ || { echo -e "${RED}Ошибка копирования bin скриптов${NC}"; exit 1; }
+    chmod -R +x ~/.local/bin
+
+    # Копирование обоев
+    mkdir -p ~/Pictures/wallpapers
+    cp -r $DOTFILES_DIR/wallpapers/* ~/Pictures/wallpapers/ || { echo -e "${RED}Ошибка копирования обоев${NC}"; exit 1; }
+
+    echo -e "${GREEN}Конфигурационные файлы, скрипты и обои успешно скопированы!${NC}"
 }
 
 # Проверка и настройка .xinitrc
@@ -121,6 +131,18 @@ setup_xinitrc() {
     fi
 }
 
+# Добавление ~/.local/bin в PATH
+setup_path() {
+    if ! grep -q ".local/bin" ~/.bashrc && ! grep -q ".local/bin" ~/.config/fish/config.fish; then
+        echo -e "${YELLOW}Добавление ~/.local/bin в PATH...${NC}"
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+        echo 'set -gx PATH $HOME/.local/bin $PATH' >> ~/.config/fish/config.fish
+        echo -e "${GREEN}PATH обновлён для Bash и Fish.${NC}"
+    else
+        echo -e "${YELLOW}~/.local/bin уже в PATH.${NC}"
+    fi
+}
+
 # Основная функция
 main() {
     check_root
@@ -128,6 +150,7 @@ main() {
     install_packages
     copy_dotfiles
     setup_xinitrc
+    setup_path
 
     echo -e "${GREEN}Установка завершена!${NC}"
     echo -e "Для запуска BSPWM выполните:"
