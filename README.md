@@ -113,4 +113,3 @@ startx
 ## Лицензия
 
 MIT License — см. [LICENSE](LICENSE).
-```
