@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Скрипт установки dotfiles для BSPWM
+# Скрипт установки dotfiles для BSPWM и всех установленных пакетов
 # Репозиторий: https://github.com/PDTPLR/Linux
 # Автор: PDTPLR
 
 # Путь к папке dotfiles
 DOTFILES_DIR="$HOME/git/dotfiles"
 
-# Список необходимых пакетов
-DEPENDENCIES="bspwm sxhkd polybar picom rofi dunst feh xorg xorg-xinit ttf-dejavu noto-fonts ttf-font-awesome"
+# Файл с списком пакетов
+PACKAGES_FILE="$DOTFILES_DIR/packages.txt"
 
 # Цветной вывод
 RED='\033[0;31m'
@@ -39,8 +39,15 @@ detect_distro() {
     fi
 }
 
-# Установка зависимостей
-install_dependencies() {
+# Установка пакетов из packages.txt
+install_packages() {
+    if [ ! -f "$PACKAGES_FILE" ]; then
+        echo -e "${RED}Ошибка: Файл $PACKAGES_FILE не найден. Сгенерируйте его на исходной системе.${NC}"
+        exit 1
+    fi
+
+    PACKAGES=$(cat "$PACKAGES_FILE" | tr '\n' ' ')
+
     echo -e "${YELLOW}Обнаружен дистрибутив: $DISTRO${NC}"
     case "$DISTRO" in
         arch)
@@ -48,8 +55,8 @@ install_dependencies() {
                 echo -e "${RED}Ошибка: pacman не найден. Убедитесь, что вы используете Arch Linux.${NC}"
                 exit 1
             fi
-            echo -e "${GREEN}Установка зависимостей для Arch Linux...${NC}"
-            sudo pacman -S --needed $DEPENDENCIES
+            echo -e "${GREEN}Установка пакетов из $PACKAGES_FILE для Arch Linux...${NC}"
+            sudo pacman -S --needed $PACKAGES
             ;;
         ubuntu|debian)
             if ! command_exists apt; then
@@ -58,19 +65,35 @@ install_dependencies() {
             fi
             echo -e "${GREEN}Обновление списка пакетов...${NC}"
             sudo apt update
-            echo -e "${GREEN}Установка зависимостей для Ubuntu/Debian...${NC}"
-            sudo apt install -y bspwm sxhkd polybar picom rofi dunst feh xorg x11-xserver-utils fonts-dejavu fonts-noto fonts-font-awesome
+            echo -e "${GREEN}Установка пакетов из $PACKAGES_FILE для Ubuntu/Debian...${NC}"
+            # Для Ubuntu пакеты могут иметь другие имена, поэтому устанавливаем только известные
+            # Адаптируйте список вручную или используйте приблизительный
+            sudo apt install -y $(cat "$PACKAGES_FILE" | grep -vE "arch-specific-package")  # Замените на реальный фильтр, если нужно
             ;;
         *)
-            echo -e "${RED}Дистрибутив $DISTRO не поддерживается! Установите зависимости вручную:${NC}"
-            echo "$DEPENDENCIES"
+            echo -e "${RED}Дистрибутив $DISTRO не поддерживается! Установите пакеты вручную из $PACKAGES_FILE.${NC}"
+            cat "$PACKAGES_FILE"
             exit 1
             ;;
     esac
 }
 
-# Копирование конфигурационных файлов
+# Резервное копирование и копирование конфигурационных файлов
 copy_dotfiles() {
+    # Резервное копирование
+    BACKUP_DIR=~/.config/backup-$(date +%F-%H%M%S)
+    echo -e "${YELLOW}Создание резервной копии в $BACKUP_DIR...${NC}"
+    mkdir -p $BACKUP_DIR
+    mv ~/.config/bspwm $BACKUP_DIR 2>/dev/null
+    mv ~/.config/sxhkd $BACKUP_DIR 2>/dev/null
+    mv ~/.config/polybar $BACKUP_DIR 2>/dev/null
+    mv ~/.config/picom $BACKUP_DIR 2>/dev/null
+    mv ~/.config/rofi $BACKUP_DIR 2>/dev/null
+    mv ~/.config/dunst $BACKUP_DIR 2>/dev/null
+    mv ~/.xinitrc $BACKUP_DIR 2>/dev/null
+    mv ~/.bashrc $BACKUP_DIR 2>/dev/null
+
+    # Копирование
     echo -e "${GREEN}Копирование конфигурационных файлов...${NC}"
     mkdir -p ~/.config
     cp -r $DOTFILES_DIR/bspwm ~/.config/ || { echo -e "${RED}Ошибка копирования bspwm${NC}"; exit 1; }
@@ -88,7 +111,7 @@ copy_dotfiles() {
     echo -e "${GREEN}Конфигурационные файлы успешно скопированы!${NC}"
 }
 
-# Проверка и создание .xinitrc
+# Проверка и настройка .xinitrc
 setup_xinitrc() {
     if grep -q "exec bspwm" ~/.xinitrc; then
         echo -e "${YELLOW}.xinitrc уже настроен для BSPWM.${NC}"
@@ -102,7 +125,7 @@ setup_xinitrc() {
 main() {
     check_root
     detect_distro
-    install_dependencies
+    install_packages
     copy_dotfiles
     setup_xinitrc
 
