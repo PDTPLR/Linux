@@ -290,3 +290,4 @@ zathura-djvu
 zathura-pdf-mupdf
 zip
 zram-generator
+ttf-jetbrains-mono-nerd
