@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Скрипт установки dotfiles для BSPWM, пакетов, скриптов и обоев
+# Скрипт полной установки dotfiles для BSPWM
 # Репозиторий: https://github.com/PDTPLR/Linux
 # Автор: PDTPLR
 
@@ -98,25 +98,18 @@ copy_dotfiles() {
     # Копирование
     echo -e "${GREEN}Копирование конфигурационных файлов...${NC}"
     mkdir -p ~/.config
-    cp -r $DOTFILES_DIR/bspwm ~/.config/ || { echo -e "${RED}Ошибка копирования bspwm${NC}"; exit 1; }
-    cp -r $DOTFILES_DIR/sxhkd ~/.config/ || { echo -e "${RED}Ошибка копирования sxhkd${NC}"; exit 1; }
-    cp -r $DOTFILES_DIR/polybar ~/.config/ || { echo -e "${RED}Ошибка копирования polybar${NC}"; exit 1; }
-    cp -r $DOTFILES_DIR/picom ~/.config/ || { echo -e "${RED}Ошибка копирования picom${NC}"; exit 1; }
-    cp -r $DOTFILES_DIR/rofi ~/.config/ || { echo -e "${RED}Ошибка копирования rofi${NC}"; exit 1; }
-    mkdir -p ~/.config/dunst
-    cp $DOTFILES_DIR/dunstrc ~/.config/dunst/ || { echo -e "${RED}Ошибка копирования dunstrc${NC}"; exit 1; }
-    cp -r $DOTFILES_DIR/fish ~/.config/ || { echo -e "${RED}Ошибка копирования fish${NC}"; exit 1; }
+    cp -r $DOTFILES_DIR/configs/* ~/.config/ || { echo -e "${RED}Ошибка копирования конфигураций${NC}"; exit 1; }
     cp $DOTFILES_DIR/.xinitrc ~ || { echo -e "${RED}Ошибка копирования .xinitrc${NC}"; exit 1; }
     cp $DOTFILES_DIR/.bashrc ~ || { echo -e "${RED}Ошибка копирования .bashrc${NC}"; exit 1; }
 
     # Копирование пользовательских скриптов
     mkdir -p ~/.local/bin
-    cp -r $DOTFILES_DIR/bin/* ~/.local/bin/ || { echo -e "${RED}Ошибка копирования bin скриптов${NC}"; exit 1; }
+    cp -r $DOTFILES_DIR/scripts/utils/* ~/.local/bin/ || { echo -e "${RED}Ошибка копирования скриптов${NC}"; exit 1; }
     chmod -R +x ~/.local/bin
 
     # Копирование обоев
     mkdir -p ~/Images
-    cp -r $DOTFILES_DIR/wallpapers/* ~/Images/ || { echo -e "${RED}Ошибка копирования обоев${NC}"; exit 1; }
+    cp -r $DOTFILES_DIR/assets/wallpapers/* ~/Images/ || { echo -e "${RED}Ошибка копирования обоев${NC}"; exit 1; }
 
     echo -e "${GREEN}Конфигурационные файлы, скрипты и обои успешно скопированы!${NC}"
 }
@@ -155,7 +148,7 @@ main() {
     echo -e "${GREEN}Установка завершена!${NC}"
     echo -e "Для запуска BSPWM выполните:"
     echo -e "  ${YELLOW}startx${NC}"
-    echo -e "Подробности в README.md и Docs/installation.md."
+    echo -e "Подробности в README.md и docs/installation.md."
 }
 
 # Запуск
