@@ -20,9 +20,9 @@
 
 🖼 **Галерея**
 
-![Рабочий стол](screenshots/desktop.jpg)  
-![Polybar](screenshots/polybar.jpg)  
-![Rofi](screenshots/rofi.jpg)
+![Рабочий стол](screenshots/bspwm.png)  
+![Polybar](screenshots/btop.png)  
+![Rofi](screenshots/ranger.png)
 
 > 📌 **Примечание**: Добавьте свои скриншоты в папку screenshots/ и обновите пути выше.
 
