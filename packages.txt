@@ -291,3 +291,4 @@ zathura-pdf-mupdf
 zip
 zram-generator
 ttf-jetbrains-mono-nerd
+python python-distro python-inquirer
